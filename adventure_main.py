@@ -3,10 +3,11 @@
 ########################
 from adventurelib import *
 
-Room.
 ########################
 #DEFINE ROOMS
 ########################
+Room.items = Bag()
+
 Hall1 = Room("There is a long hallway stretching in front of you")
 Hall2 = Room("There is a long hallway stretching in front of you")
 Hall3 = Room("There is a long hallway stretching in front of you")
@@ -39,7 +40,8 @@ Item.description = ""
 Keycard = Item("A red keycard","keycard","card","key","red keycard")
 Keycard.description = "You look at the keycard and see that it is labelled Main Computer"
 
-MoneyBag = Item("")
+MoneyBag = Item("Moneybag, bag, money")
+MoneyBag.description = "A bag containing a large quantity of money"
 
 
 ########################
@@ -51,13 +53,14 @@ inventory = Bag()
 ########################
 #ADD ITEMS TO BAGS
 ########################
-current_room = Hall1
+
+Ensuite.items.add(keycard)
 
 
 ########################
 #DEFINE ANY VARIABLES
 ########################
-
+current_room = Hall1
 
 
 ########################
@@ -67,7 +70,7 @@ current_room = Hall1
 def look():
 	print(current_room)
 	print("There are rooms to the",current_room.exits())
-	if len(current_room) > 0:
+	if len(current_room.items) > 0:
 		print("You also see:")
 		for item in current_room.items:
 			print(item)
