@@ -8,14 +8,15 @@ from adventurelib import *
 ########################
 Room.items = Bag()
 
+escape = Room("You have won. Congratulations")
 hall1 = Room("There is a long hallway stretching in front of you")
 hall2 = Room("There is a long hallway stretching in front of you")
 hall3 = Room("There is a long hallway stretching in front of you")
 hall4 = Room("There is a long hallway stretching in front of you")
 hall5 = Room("There is a long hallway stretching in front of you")
 master_Bedroom = Room("There is a large bed in the middle of the room")
-ensuite = Room("There is a bathroom here. there is a shower and a clogged toilet, there is a plunger on the floor")
-hidden_Room = Room("There is a vault, it requires a passcode")
+ensuite = Room("There is a bathroom here. there is a shower and a clogged toilet")
+hidden_Room = Room("")
 final_Room = Room("There is a locked case and a locked safe in here. There is a computer in the corner, there is a keyslot in the side of it")
 
 
@@ -30,17 +31,14 @@ master_Bedroom.east = hall4
 master_Bedroom.west = hall5
 master_Bedroom.south = ensuite
 
-
-
-
 ########################
 #DEFINE ITEMS
 ########################
 Item.description = ""
 keycard = Item("A red keycard","keycard","card","key","red keycard")
-keycard.description = "You look at the keycard and see that it is labelled Main Computer"
+keycard.description = "You look at the keycard and see that it is labelled hidden_Room"
 
-moneyBag = Item("Moneybag, bag, money")
+moneyBag = Item("Moneybag", "bag", "money", "moneybag")
 moneyBag.description = "A bag containing a large quantity of money"
 
 plunger = Item("A plunger", "plunger")
@@ -66,7 +64,7 @@ current_room = hall1
 toilet_unclogged = False 
 
 ########################
-#BINDS (ed"@when(look)")
+#BINDS (eg"@when(look)")
 ########################
 @when("look")
 def look():
@@ -77,9 +75,22 @@ def look():
 		for item in current_room.items:
 			print(item)
 
-@when("jump")
-def jump():
-	print("You Jump")
+@when ("use ITEM")
+def use(item):
+	if item == "plunger" and current_room == ensuite:
+		print("You unclogged the toilet. It was blocked because of a keycard.")
+		ensuite.items.add(keycard)
+		toilet_unclogged = True
+	elif item == "keycard" and current_room == hidden_Room:
+		print("you use the card and a door opens to the east")
+		hidden_Room.east = final_Room
+	elif item == "keycard" and current_room == final_Room:
+		print("You use the keycard on the computer and it opens a safe in the wall. A moneybag falls out.")
+		print("New objective: Take the moneybag out of the house")
+		hall1.south = escape
+		final_Room.items.add(moneyBag)
+	else:
+		print("You can't use that here")
 
 @when("get ITEM")
 @when("take ITEM")
@@ -96,17 +107,6 @@ def get_item(item):
 	else:
 		print(f"You don't see a {item}")
 
-@when ("use ITEM")
-def use(item):
-	if plunger in inventory and current_room == ensuite:
-		print("You unclogged the toilet. It was blocked because of a keycard.")
-		ensuite.items.add(keycard)
-		toilet_unclogged = True
-		ensuite.south = hidden_Room
-	else:
-		print("You can't use that here")
-
-
 @when("inventory")
 def check_inventory():
 	print("You are carrying")
@@ -115,7 +115,13 @@ def check_inventory():
 
 @when("look at ITEM")
 def look_at(item):
-	if item in inventory:
+	if item == "keycard" and current_room == final_Room:
+		print("you turn the keycard over and it says main computer")
+	elif item == "keycard":
+		hall4.east = hidden_Room
+		t = inventory.find(item)
+		print(t.description)
+	elif item in inventory:
 		t = inventory.find(item)
 		print(t.description)
 	else:
